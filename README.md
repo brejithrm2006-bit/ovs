@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # VotePulse — Complete Online Voting Platform
 
 > **"Your Voice. Your Choice. Your Future."**
@@ -427,3 +428,6 @@ kubectl delete namespace votepulse
   If using PostgreSQL in Docker, ensure the health check passes before launching the backend (`service_healthy` condition in `docker-compose.yml`).
 - **Initial Admin Not Appearing:**
   Run `python backend/seed.py` to ensure initial admin credentials (`brmovs` / `7025919468`) are committed.
+
+# ovs
+>>>>>>> 5f7de1605d0801696591207e2e4aa0eb1309289b
