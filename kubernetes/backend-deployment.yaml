@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: votepulse
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: votepulse-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:postgres_secure_password_k8s@postgres-service:5432/votepulse"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: votepulse-secrets
+                  key: SECRET_KEY
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: votepulse-secrets
+                  key: JWT_SECRET_KEY
+            - name: JWT_EXPIRES_HOURS
+              valueFrom:
+                configMapKeyRef:
+                  name: votepulse-config
+                  key: JWT_EXPIRES_HOURS
+            - name: INITIAL_ADMIN_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: votepulse-config
+                  key: INITIAL_ADMIN_USERNAME
+            - name: INITIAL_ADMIN_PHONE
+              valueFrom:
+                configMapKeyRef:
+                  name: votepulse-config
+                  key: INITIAL_ADMIN_PHONE
+            - name: INITIAL_ADMIN_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: votepulse-config
+                  key: INITIAL_ADMIN_NAME
+            - name: INITIAL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: votepulse-secrets
+                  key: INITIAL_ADMIN_PASSWORD
+            - name: CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: votepulse-config
+                  key: CORS_ORIGINS
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
